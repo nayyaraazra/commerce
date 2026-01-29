@@ -1,10 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render, get_object_or_4044
 from django.urls import reverse
 
-from .models import User, AuctionList
+from .models import User, AuctionList, Bid, Comment
 
 
 def index(request):
@@ -65,8 +65,115 @@ def register(request):
         return render(request, "auctions/register.html")
 
 # def auction_listing(request, item_id):
-#     auction = auction_list.get(item_id)
+#     listing = AuctionList.get(pk=item_id)
+#     bids = listing.bids.order_by("-amount")
+#     comments = listing.comments.order_by("-timestamp")
 #     return render(request, "auctions/layout.html", {
 #         "auctions": auction,
 #         "items": auction.item
 #     })
+
+def listing_detail(request, listing_id):
+    # 1. Get the listing safely
+    listing = get_object_or_404(AuctionList, pk=listing_id)
+
+    # 2. Get related data
+    bids = listing.bids.order_by("-amount")
+    comments = listing.comments.order_by("-timestamp")
+
+    # 3. Determine current price
+    highest_bid = bids.first()
+    if highest_bid:
+        current_price = highest_bid.amount
+    else:
+        current_price = listing.starting_bid
+
+    # 4. User-related flags (default values)
+    is_owner = False
+    is_watching = False
+    is_winner = False
+
+    if request.user.is_authenticated:
+        is_owner = request.user == listing.owner
+        is_watching = listing.watchlist.filter(id=request.user.id).exists()
+        is_winner = (
+            not listing.is_active
+            and listing.winner == request.user
+        )
+
+    # 5. Handle POST actions
+    error_message = None
+
+    if request.method == "POST" and request.user.is_authenticated:
+
+        # A. Place bid
+        if "bid" in request.POST:
+            bid_amount = request.POST.get("bid_amount")
+
+            try:
+                bid_amount = float(bid_amount)
+            except (TypeError, ValueError):
+                error_message = "Invalid bid amount."
+            else:
+                if not listing.is_active:
+                    error_message = "This auction is closed."
+                elif bid_amount <= current_price:
+                    error_message = "Bid must be higher than current price."
+                else:
+                    Bid.objects.create(
+                        bidder=request.user,
+                        listing=listing,
+                        amount=bid_amount
+                    )
+                    return HttpResponseRedirect(
+                        reverse("listing_detail", args=[listing.id])
+                    )
+
+        # B. Toggle watchlist
+        elif "watchlist" in request.POST:
+            if is_watching:
+                listing.watchlist.remove(request.user)
+            else:
+                listing.watchlist.add(request.user)
+
+            return HttpResponseRedirect(
+                reverse("listing_detail", args=[listing.id])
+            )
+
+        # C. Add comment
+        elif "comment" in request.POST:
+            content = request.POST.get("content")
+
+            if content:
+                Comment.objects.create(
+                    author=request.user,
+                    listing=listing,
+                    content=content
+                )
+
+            return HttpResponseRedirect(
+                reverse("listing_detail", args=[listing.id])
+            )
+
+        # D. Close auction (owner only)
+        elif "close" in request.POST and is_owner:
+            listing.is_active = False
+            if highest_bid:
+                listing.winner = highest_bid.bidder
+            listing.save()
+
+            return HttpResponseRedirect(
+                reverse("listing_detail", args=[listing.id])
+            )
+
+    # 6. Render page
+    return render(request, "auctions/listing.html", {
+        "listing": listing,
+        "current_price": current_price,
+        "bids": bids,
+        "comments": comments,
+        "is_owner": is_owner,
+        "is_watching": is_watching,
+        "is_winner": is_winner,
+        "error": error_message,
+    })
