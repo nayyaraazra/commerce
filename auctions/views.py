@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, get_object_or_4044
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 from .models import User, AuctionList, Bid, Comment
@@ -9,9 +9,13 @@ from .models import User, AuctionList, Bid, Comment
 
 def index(request):
     return render(request, "auctions/index.html", {
-        "auction": AuctionList.objects.all() #marked
+        "auction": AuctionList.objects.filter(is_active=True) #marked
     })
 
+# def index(request):
+#     return render(request, "auctions/index.html", {
+#         "listings": Listing.objects.filter(is_active=True)
+#     })
 
 def login_view(request):
     if request.method == "POST":

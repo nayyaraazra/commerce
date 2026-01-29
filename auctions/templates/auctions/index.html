@@ -3,5 +3,49 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    <h1> test ygy </h1>
+ {% if AuctionLists %}
+    <div>
+      {% for AuctionList in AuctionLists %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 15px;">
+          
+          <h3>
+            <a href="{% url 'AuctionList_detail' AuctionList.id %}">
+              {{ AuctionList.title }}
+            </a>
+          </h3>
+
+          {% if AuctionList.image_url %}
+            <img src="{{ AuctionList.image_url }}" alt="{{ AuctionList.title }}" style="max-width: 200px;">
+          {% endif %}
+
+          <p>{{ AuctionList.description }}</p>
+
+          <p>
+            <strong>Starting bid:</strong> ${{ AuctionList.starting_bid }}
+          </p>
+
+          {% if AuctionList.category %}
+            <p>
+              <strong>Category:</strong> {{ AuctionList.category.name }}
+            </p>
+          {% endif %}
+
+          <p>
+            <strong>Status:</strong>
+            {% if AuctionList.is_active %}
+              Active
+            {% else %}
+              Closed
+            {% endif %}
+          </p>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No active AuctionLists.</p>
+  {% endif %}
+
 {% endblock %}
+
