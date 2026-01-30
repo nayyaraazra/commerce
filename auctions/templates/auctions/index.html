@@ -3,5 +3,28 @@
 {% block body %}
   <h2>Active Listings</h2>
 
-{% endblock %}
+  {% if listings %}
+    <div>
+      {% for listing in listings %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+          
+          <h3>{{ listing.title }}</h3>
 
+          <p>{{ listing.description }}</p>
+
+          <p>
+            Starting bid:
+            ${{ listing.starting_bid }}
+          </p>
+
+          <a href="{% url 'listing_detail' listing.id %}">
+            View listing
+          </a>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No listings available.</p>
+  {% endif %}
+{% endblock %}
