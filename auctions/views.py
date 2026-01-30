@@ -1,28 +1,23 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from .models import User, AuctionList, Bid, Comment, Category
 
-from .models import User, AuctionList, Bid, Comment
-
-
+# show active listing
 def index(request):
     return render(request, "auctions/index.html", {
-        "auction": AuctionList.objects.filter(is_active=True) #marked
+        "listings": AuctionList.objects.filter(is_active=True) #marked
     })
-
-# def index(request):
-#     return render(request, "auctions/index.html", {
-#         "listings": Listing.objects.filter(is_active=True)
-#     })
 
 def login_view(request):
     if request.method == "POST":
 
         # Attempt to sign user in
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username")
+        password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
 
         # Check if authentication successful
@@ -44,12 +39,12 @@ def logout_view(request):
 
 def register(request):
     if request.method == "POST":
-        username = request.POST.get["username"]
-        email = request.POST.get["email"]
+        username = request.POST.get("username")
+        email = request.POST.get("email")
 
         # Ensure password matches confirmation
-        password = request.POST.get["password"]
-        confirmation = request.POST.get["confirmation"]
+        password = request.POST.get("password")
+        confirmation = request.POST.get("confirmation")
         if password != confirmation:
             return render(request, "auctions/register.html", {
                 "message": "Passwords must match."
@@ -78,7 +73,7 @@ def register(request):
 #     })
 
 def listing_detail(request, listing_id):
-    # 1. Get the listing safely
+    # 1. Get the listing safely, get listing_id from url
     listing = get_object_or_404(AuctionList, pk=listing_id)
 
     # 2. Get related data
@@ -181,3 +176,23 @@ def listing_detail(request, listing_id):
         "is_winner": is_winner,
         "error": error_message,
     })
+
+@login_required
+def create_listing(request, listing_id):
+    if request.method == "POST": # user submit form
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        starting_bid = request.POST.get("starting_bid")
+        image = request.POST.get("image")
+        category =request.POST.get("category")
+
+        listing = AuctionList.objects.create(
+            pk=listing_id,
+            owner = request.User,
+            title = title,
+            description=description,
+            starting_bid=starting_bid,
+            image=image,
+            category=category
+            )
+        return redirect(request, "auctions/index.html") #marked dlu
