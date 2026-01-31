@@ -14,7 +14,7 @@
               </h3>
 
               {% if AuctionList.image_url %}
-                <img src="{{ AuctionList.image_url }}" alt="{{ AuctionList.title }}" style="max-width: 200px;">
+                <img src="{{ AuctionList.image_url.url }}" alt="{{ AuctionList.title }}" style="max-width: 200px;">
               {% endif %}
 
               <p>{{ AuctionList.description }}</p>

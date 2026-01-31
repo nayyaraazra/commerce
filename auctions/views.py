@@ -179,12 +179,22 @@ def listing_detail(request, listing_id):
 
 @login_required
 def create_listing(request, listing_id):
+
+    if request.method == "GET": # user opens page
+        return render(request, "auctions/create.html", {
+            "categories": Category.objects.all()
+        })
+    
     if request.method == "POST": # user submit form
         title = request.POST.get("title")
         description = request.POST.get("description")
         starting_bid = request.POST.get("starting_bid")
         image = request.POST.get("image")
         category =request.POST.get("category")
+
+        categories = None
+        if category:
+            categories = Category.objects.get(id=category)
 
         listing = AuctionList.objects.create(
             pk=listing_id,
