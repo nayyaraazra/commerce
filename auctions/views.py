@@ -178,7 +178,7 @@ def listing_detail(request, listing_id):
     })
 
 @login_required
-def create_listing(request, listing_id):
+def create_listing(request):
 
     if request.method == "GET": # user opens page
         return render(request, "auctions/create.html", {
@@ -197,8 +197,7 @@ def create_listing(request, listing_id):
             categories = Category.objects.get(id=category)
 
         listing = AuctionList.objects.create(
-            pk=listing_id,
-            owner = request.User,
+            owner = request.user,
             title = title,
             description=description,
             starting_bid=starting_bid,
