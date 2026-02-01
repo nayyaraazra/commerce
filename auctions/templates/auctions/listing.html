@@ -13,16 +13,19 @@
                 </a>
               </h3>
 
-              {% if AuctionList.image_url %}
-                <img src="{{ AuctionList.image_url.url }}" alt="{{ AuctionList.title }}" style="max-width: 200px;">
+              {% for auction in listings %}
+              {% if auction.image_url %}
+                <img src="{{ auction.image_url.url }}" alt="{{ auction.title }}" style="max-width: 200px;">
               {% endif %}
+              {% endfor %}
 
               <p>{{ AuctionList.description }}</p>
 
               <p>
                 <strong>Starting bid:</strong> ${{ AuctionList.starting_bid }}
               </p>
-
+              
+              <!-- make the assign from index to value works -->
               {% if AuctionList.category %}
                 <p>
                   <strong>Category:</strong> {{ AuctionList.category.name }}

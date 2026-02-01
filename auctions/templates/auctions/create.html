@@ -23,7 +23,9 @@
 
     <div>
       <label>Image URL (optional)</label><br>
-      <input type="url" name="image_url">
+      <input type="file" name="image"><form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
     </div>
 
     <div>
@@ -34,6 +36,9 @@
           <option value="{{ category.id }}">{{ category.name }}</option>
         {% endfor %}
       </select>
+      <br><br>
+      <label> Or add new category </label>
+      <br> <input type="text" name="new_category" placeholder="e.g Electronics">
     </div>
 
     <br>

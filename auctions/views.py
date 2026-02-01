@@ -189,13 +189,18 @@ def create_listing(request):
         title = request.POST.get("title")
         description = request.POST.get("description")
         starting_bid = request.POST.get("starting_bid")
-        image = request.POST.get("image")
-        category =request.POST.get("category")
+        image = request.FILES.get("image")
+        category_id =request.POST.get("category")
+        new_category = request.POST.get("new_category")
 
-        categories = None
-        if category:
-            categories = Category.objects.get(id=category)
-
+        category = None
+        if new_category:
+            category, created = Category.objects.get_or_create(
+                name=new_category.strip()
+            )
+        elif category_id:
+            category = Category.objects.get(id=category_id)
+        
         listing = AuctionList.objects.create(
             owner = request.user,
             title = title,
@@ -204,4 +209,4 @@ def create_listing(request):
             image=image,
             category=category
             )
-        return redirect(request, "auctions/index.html") #marked dlu
+        return redirect("index") # bkn return ke index.html
