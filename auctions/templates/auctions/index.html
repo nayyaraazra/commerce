@@ -17,14 +17,22 @@
             ${{ listing.starting_bid }}
           </p>
 
-          <a href="{% url 'listing_detail' listing.id %}">
-            View listing
-          </a>
+          <p>Created: {{ listing.date_posted|date:"M d, Y" }}</p>
 
+          {% if listing.category %}
+            <p>Category: {{ listing.category.name }}</p>
+          {% else %}
+            <p>Category: None</p>
+          {% endif %}
+            <a href="{% url 'listing_detail' listing.id %}">
+              View listing
+            </a>
         </div>
       {% endfor %}
+      
     </div>
   {% else %}
     <p>No listings available.</p>
   {% endif %}
+
 {% endblock %}
