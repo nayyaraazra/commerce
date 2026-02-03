@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import User, AuctionList, Bid, Comment, Category
-
+from decimal import Decimal
 # show active listing
 # def index(request):
 #     return render(request, "auctions/index.html", {
@@ -79,8 +79,8 @@ def register(request):
 
 def listing_detail(request, listing_id):
     # 1. Get the listing safely, get listing_id from url
-    # listing = get_object_or_404(AuctionList, pk=listing_id)
-    listing = AuctionList.objects.get(id=listing_id)
+    listing = get_object_or_404(AuctionList, pk=listing_id)
+    # listing = AuctionList.objects.get(id=listing_id)
     # 2. Get related data
     bids = listing.bids.order_by("-amount")
     comments = listing.comments.order_by("-timestamp")
@@ -112,7 +112,7 @@ def listing_detail(request, listing_id):
 
         # A. Place bid
         if "bid" in request.POST:
-            bid_amount = request.POST.get("bid_amount")
+            bid_amount = (request.POST.get("bid_amount"))
 
             try:
                 bid_amount = float(bid_amount)
@@ -135,10 +135,11 @@ def listing_detail(request, listing_id):
 
         # B. Toggle watchlist
         elif "watchlist" in request.POST:
-            if is_watching:
-                listing.watchlist.remove(request.user)
-            else:
-                listing.watchlist.add(request.user)
+            if request.user.is_authenticated and request.user != listing.owner:
+                if request.user in listing.watchlist.all():
+                    listing.watchlist.remove(request.user)
+                else:
+                    listing.watchlist.add(request.user)
 
             return HttpResponseRedirect(
                 reverse("listing_detail", args=[listing.id])
@@ -146,15 +147,16 @@ def listing_detail(request, listing_id):
 
         # C. Add comment
         elif "comment" in request.POST:
-            content = request.POST.get("content")
+            if request.user.is_authenticated:
+                content = request.POST.get("content")
 
-            if content:
-                Comment.objects.create(
-                    author=request.user,
-                    listing=listing,
-                    # content=content`
-                    content = request.POST["comment"]
-                )
+                if content:
+                    Comment.objects.create(
+                        author=request.user,
+                        listing=listing,
+                        # content=content`
+                        content = request.POST["comment"]
+                    )
 
             return HttpResponseRedirect(
                 reverse("listing_detail", args=[listing.id])
@@ -163,6 +165,7 @@ def listing_detail(request, listing_id):
         # D. Close auction (owner only) - marked
         elif "close" in request.POST and is_owner:
             listing.is_active = False
+            
             if highest_bid:
                 listing.winner = highest_bid.bidder
             listing.save()
@@ -176,6 +179,7 @@ def listing_detail(request, listing_id):
         "listing": listing,
         "current_price": current_price,
         "bids": bids,
+         "highest_bid": highest_bid,
         "comments": comments,
         "is_owner": is_owner,
         "is_watching": is_watching,
