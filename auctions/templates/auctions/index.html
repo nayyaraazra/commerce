@@ -10,6 +10,12 @@
           
           <h3>{{ listing.title }}</h3>
 
+              {% for auction in listings %}
+              {% if listing.image_url %}
+                <img src="{{ auction.image_url.url }}" alt="{{ auction.title }}" style="max-width: 200px;">
+              {% endif %}
+              {% endfor %}
+
           <p>{{ listing.description }}</p>
 
           <p>
@@ -27,6 +33,15 @@
             <a href="{% url 'listing_detail' listing.id %}">
               View listing
             </a>
+                      <p>
+        <strong>Status:</strong>
+        {% if listing.is_active %}
+          Active
+        {% else %}
+          Closed
+        {% endif %}
+        </p>
+
         </div>
       {% endfor %}
       

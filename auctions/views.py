@@ -7,9 +7,14 @@ from django.contrib.auth.decorators import login_required
 from .models import User, AuctionList, Bid, Comment, Category
 
 # show active listing
+# def index(request):
+#     return render(request, "auctions/index.html", {
+#         "listings": AuctionList.objects.filter(is_active=True) #marked
+#     })
 def index(request):
+    listings = AuctionList.objects.filter(is_active=True)
     return render(request, "auctions/index.html", {
-        "listings": AuctionList.objects.filter(is_active=True) #marked
+        "listings": listings
     })
 
 def login_view(request):
@@ -74,8 +79,8 @@ def register(request):
 
 def listing_detail(request, listing_id):
     # 1. Get the listing safely, get listing_id from url
-    listing = get_object_or_404(AuctionList, pk=listing_id)
-
+    # listing = get_object_or_404(AuctionList, pk=listing_id)
+    listing = AuctionList.objects.get(id=listing_id)
     # 2. Get related data
     bids = listing.bids.order_by("-amount")
     comments = listing.comments.order_by("-timestamp")
@@ -147,14 +152,15 @@ def listing_detail(request, listing_id):
                 Comment.objects.create(
                     author=request.user,
                     listing=listing,
-                    content=content
+                    # content=content`
+                    content = request.POST["comment"]
                 )
 
             return HttpResponseRedirect(
                 reverse("listing_detail", args=[listing.id])
             )
 
-        # D. Close auction (owner only)
+        # D. Close auction (owner only) - marked
         elif "close" in request.POST and is_owner:
             listing.is_active = False
             if highest_bid:
@@ -166,7 +172,7 @@ def listing_detail(request, listing_id):
             )
 
     # 6. Render page
-    return render(request, "auctions/listing.html", {
+    return render(request, "auctions/listing_detail.html", {
         "listing": listing,
         "current_price": current_price,
         "bids": bids,

@@ -1,0 +1,61 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h1>DETAIL PAGE WORKS</h1>
+
+<h1>{{ listing.title }}</h1>
+
+{% if listing.image %}
+  <img src="{{ listing.image.url }}" width="300">
+{% else %}
+    <p>No image provided</p>
+{% endif %}
+
+<p>{{ listing.description }}</p>
+
+<p>Starting bid: ${{ listing.starting_bid }}</p>
+{% if user.is_authenticated and listing.is_active and user != listing.owner %}
+  <form method="post">
+    {% csrf_token %}
+    <input type="number" step="0.01" name="bid" required>
+    <button type="submit">Place Bid</button>
+  </form>
+{% endif %}
+
+
+<p>Created: {{ listing.date_posted|date:"M d, Y" }}</p>
+
+{% if listing.category %}
+  <p>Category: {{ listing.category.name }}</p>
+{% endif %}
+
+<p>Status: {{ listing.is_active|yesno:"Active,Closed" }}</p
+
+<h3>Comments</h3>
+
+{% for comment in listing.comments.all %}
+  <p>
+    <strong>{{ comment.user.username }}</strong><br>
+    {{ comment.text }}<br>
+    <small>{{ comment.created_at|date:"M d, Y H:i" }}</small>
+  </p>
+{% empty %}
+  <p>No comments yet.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+  <form method="post">
+    {% csrf_token %}
+    <textarea name="comment" required></textarea>
+    <button type="submit">Add Comment</button>
+  </form>
+{% endif %}
+
+{% if user == listing.owner and listing.is_active %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="close">Close Auction</button>
+  </form>
+{% endif %}
+
+{% endblock %}
