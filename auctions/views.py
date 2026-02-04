@@ -220,3 +220,17 @@ def create_listing(request):
             category=category
             )
         return redirect("index") # bkn return ke index.html
+
+@login_required
+def watchlist(request):
+    listings = request.user.watchlist.all()
+
+    for listing in listings:
+        highest_bid = listing.bids.order_by("-amount").first()
+        listing.current_price = (
+            highest_bid.amount if highest_bid else listing.starting_bid
+        )
+        
+    return render(request, "auctions/watchlist.html", {
+        "listings": listings
+    })
