@@ -10,9 +10,9 @@
           
           <h3>{{ listing.title }}</h3>
 
-              {% for auction in listings %}
+              {% for listing in listings %}
               {% if listing.image_url %}
-                <img src="{{ auction.image_url.url }}" alt="{{ auction.title }}" style="max-width: 200px;">
+                <img src="{{ listing.image_url.url }}" alt="{{ listing.title }}" style="max-width: 200px;">
               {% endif %}
               {% endfor %}
 
