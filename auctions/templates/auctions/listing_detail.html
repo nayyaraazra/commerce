@@ -29,12 +29,12 @@
   <p>Category: {{ listing.category.name }}</p>
 {% endif %}
 
-<p>Status: {{ listing.is_active|yesno:"Active,Closed" }}</p
+<p>Status: {{ listing.is_active|yesno:"Active,Closed" }}</p>
 
 {% if user.is_authenticated and user != listing.owner %}
-  <form method="post">
+  <form action="{% url 'toggle_watchlist' listing.id %}" method="post">
     {% csrf_token %}
-    <button type="submit" name="watchlist">
+    <button type="submit">
       {% if user in listing.watchlist.all %}
         Remove from Watchlist
       {% else %}

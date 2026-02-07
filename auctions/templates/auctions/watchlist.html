@@ -4,30 +4,31 @@
 <h2>My Watchlist</h2>
 
 {% for listing in listings %}
-  <div>
-    <h3>{{ listing.title }}</h3>
+  <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+      <div>
+        <h3>{{ listing.title }}</h3>
 
-    {% if listing.image %}
-      <img src="{{ listing.image.url }}" width="200">
-    {% endif %}
+        {% if listing.image %}
+          <img src="{{ listing.image.url }}" width="200">
+        {% endif %}
 
 
-    <p>Price: ${{ listing.current_price }}</p>
+        <p>Price: ${{ listing.current_price }}</p>
 
-    <p>Status:
-      {% if listing.is_active %}
-        Active
-      {% else %}
-        Closed
-      {% endif %}
-    </p>
+        <p>Status:
+          {% if listing.is_active %}
+            Active
+          {% else %}
+            Closed
+          {% endif %}
+        </p>
 
-    <a href="{% url 'listing_detail' listing.id %}">
-      View listing
-    </a>
-  </div>
-{% empty %}
-  <p>Your watchlist is empty.</p>
-{% endfor %}
-
+        <a href="{% url 'listing_detail' listing.id %}">
+          View listing
+        </a>
+      </div>
+    </div>
+    {% empty %}
+      <p>Your watchlist is empty.</p>
+    {% endfor %}
 {% endblock %}

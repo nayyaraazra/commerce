@@ -234,3 +234,15 @@ def watchlist(request):
     return render(request, "auctions/watchlist.html", {
         "listings": listings
     })
+
+@login_required
+def toggle_watchlist(request, listing_id):
+    print("WATCHLIST VIEW HIT")
+    listing = get_object_or_404(AuctionList, id = listing_id)
+    if request.method == "POST":
+        if request.user in listing.watchlist.all():
+            listing.watchlist.remove(request.user)
+        else:
+            listing.watchlist.add(request.user)
+
+    return redirect("listing_detail", listing_id=listing.id)
