@@ -246,3 +246,27 @@ def toggle_watchlist(request, listing_id):
             listing.watchlist.add(request.user)
 
     return redirect("listing_detail", listing_id=listing.id)
+
+def categories(request):
+    print("CATEGORY VIEW HIT")
+    query = request.GET.get("q", "")
+
+    if query:
+        categories = Category.objects.filter(name__icontains=query)
+    else:
+        categories = Category.objects.all()
+
+    return render(request, "auctions/categories.html", {
+        "categories": categories,
+        "query": query
+    })
+
+def category_detail(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+
+    listings = category.listings.filter(is_active=True)
+
+    return render(request, "auctions/category_detail.html", {
+    "category": category,
+    "listings": listings
+    })
