@@ -30,7 +30,7 @@
 <h3>Bid History</h3>
 
 {% for bid in listing.bids.all %}
-  <p>{{ bid.user.username }} — ${{ bid.amount }}</p>
+  <p>{{ bid.bidder.username }} — ${{ bid.bid.amount }}</p>
 {% empty %}
   <p>No bids yet.</p>
 {% endfor %}
@@ -61,8 +61,8 @@
 
 {% for comment in listing.comments.all %}
   <p>
-    <strong>{{ comment.user.username }}</strong><br>
-    {{ comment.text }}<br>
+    <strong>{{ comment.commenter.username }}</strong><br>
+    {{ comment.comment_text }}<br>
     <small>{{ comment.created_at|date:"M d, Y H:i" }}</small>
   </p>
 {% empty %}
