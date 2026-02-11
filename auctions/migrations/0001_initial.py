@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ('content', models.TextField()),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('listing', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='auctions.auctionlist')),
-                ('publisher', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to=settings.AUTH_USER_MODEL)),
+                ('commenter', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

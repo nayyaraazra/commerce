@@ -15,7 +15,7 @@ class BidsAdmin(admin.ModelAdmin):
     list_filter = ("listing",)
 
 class CommentsAdmin(admin.ModelAdmin):
-    list_display = ("publisher", "text", "listing")
+    list_display = ("commenter", "text", "listing")
     search_fields = ("content",)
 
 class UserAdmin(admin.ModelAdmin):

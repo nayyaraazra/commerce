@@ -82,13 +82,13 @@ def listing_detail(request, listing_id):
     listing = get_object_or_404(AuctionList, pk=listing_id)
     # listing = AuctionList.objects.get(id=listing_id)
     # 2. Get related data
-    bids = listing.bids.order_by("-amount")
+    bids = listing.bids.order_by("-bid_amount")
     comments = listing.comments.order_by("-timestamp")
 
     # 3. Determine current price
     highest_bid = bids.first()
     if highest_bid:
-        current_price = highest_bid.amount
+        current_price = highest_bid.bid_amount
     else:
         current_price = listing.starting_bid
 
@@ -107,6 +107,30 @@ def listing_detail(request, listing_id):
 
     # 5. Handle POST actions
     error_message = None
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+         # COMMENT
+        if action == "comment":
+            text = request.POST.get("comment")
+            if text:
+                Comment.objects.create(
+                    listing=listing,
+                    commenter=request.user,
+                    comment_text=text
+                )
+
+            # BID
+        elif action == "bid":
+            amount = request.POST.get("bid")
+            if amount:
+                Bid.objects.create(
+                    listing=listing,
+                    bidder=request.user,
+                    bid_amount=amount
+                )
+        return redirect("listing_detail", listing_id=listing.id)
 
     if request.method == "POST" and request.user.is_authenticated:
 
@@ -173,7 +197,7 @@ def listing_detail(request, listing_id):
             return HttpResponseRedirect(
                 reverse("listing_detail", args=[listing.id])
             )
-
+        
     # 6. Render page
     return render(request, "auctions/listing_detail.html", {
         "listing": listing,
@@ -226,9 +250,9 @@ def watchlist(request):
     listings = request.user.watchlist.all()
 
     for listing in listings:
-        highest_bid = listing.bids.order_by("-amount").first()
+        highest_bid = listing.bids.order_by("-bid_amount").first()
         listing.current_price = (
-            highest_bid.amount if highest_bid else listing.starting_bid
+            highest_bid.bid_amount if highest_bid else listing.starting_bid
         )
         
     return render(request, "auctions/watchlist.html", {
@@ -270,3 +294,47 @@ def category_detail(request, category_id):
     "category": category,
     "listings": listings
     })
+
+@login_required
+def edit_listing(request, listing_id):
+    listing = get_object_or_404(AuctionList, id=listing_id)
+
+    # Only owner allowed
+    if request.user != listing.owner:
+        return redirect("listing_detail", listing_id=listing.id)
+
+    # Optional: prevent editing closed auction
+    if not listing.is_active:
+        return redirect("listing_detail", listing_id=listing.id)
+
+    if request.method == "GET":
+        return render(request, "auctions/edit_listing.html", {
+            "listing": listing,
+            "categories": Category.objects.all()
+        })
+
+    if request.method == "POST":
+
+        listing.title = request.POST.get("title")
+        listing.description = request.POST.get("description")
+        listing.starting_bid = request.POST.get("starting_bid")
+
+        # ---------- Category ----------
+        category_id = request.POST.get("category")
+        new_category = request.POST.get("new_category")
+
+        if new_category:
+            category, created = Category.objects.get_or_create(name=new_category)
+            listing.category = category
+        elif category_id:
+            listing.category = Category.objects.get(id=category_id)
+        else:
+            listing.category = None
+
+        # ---------- Image ----------
+        if request.FILES.get("image"):
+            listing.image = request.FILES.get("image")
+
+        listing.save()
+
+        return redirect("listing_detail", listing_id=listing.id)

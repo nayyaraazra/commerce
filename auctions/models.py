@@ -56,15 +56,15 @@ class Bid(models.Model):
         AuctionList, on_delete=models.CASCADE, related_name="bids"
     )
 
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.bidder} bid {self.amount} on {self.listing}"
+        return f"{self.bidder} bid {self.bid_amount} on {self.listing}"
     
 class Comment(models.Model):
-    publisher = models.ForeignKey(
+    commenter = models.ForeignKey(
         User, on_delete = models.CASCADE, related_name="comments"
     )
 
@@ -72,10 +72,10 @@ class Comment(models.Model):
         AuctionList, on_delete = models.CASCADE, related_name="comments"
     )
 
-    content = models.TextField()
+    comment_text = models.TextField()
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment posted by {self.publisher} on {self.listing}"
+        return f"Comment posted by {self.commenter} on {self.listing}"
     

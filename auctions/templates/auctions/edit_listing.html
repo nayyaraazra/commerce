@@ -1,0 +1,70 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2>Edit Listing</h2>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div>
+    <label>Title</label><br>
+    <input type="text" name="title" value="{{ listing.title }}" required>
+  </div>
+
+  <div>
+    <label>Description</label><br>
+    <textarea name="description" rows="4" required>{{ listing.description }}</textarea>
+  </div>
+
+  <div>
+    <label>Starting Bid</label><br>
+    <input
+      type="number"
+      step="0.01"
+      name="starting_bid"
+      value="{{ listing.starting_bid }}"
+      required
+    >
+  </div>
+
+  <div>
+    <label>Current Image</label><br>
+    {% if listing.image %}
+      <img src="{{ listing.image.url }}" width="200"><br>
+    {% else %}
+      <p>No image</p>
+    {% endif %}
+  </div>
+
+  <div>
+    <label>Change Image</label><br>
+    <input type="file" name="image">
+  </div>
+
+  <div>
+    <label>Category</label><br>
+    <select name="category">
+      <option value="">-- None --</option>
+
+      {% for category in categories %}
+        <option
+          value="{{ category.id }}"
+          {% if listing.category and category.id == listing.category.id %}
+            selected
+          {% endif %}
+        >
+          {{ category.name }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <br><br>
+    <label>Or add new category</label><br>
+    <input type="text" name="new_category">
+  </div>
+
+  <br>
+  <button type="submit">Save Changes</button>
+</form>
+
+{% endblock %}
