@@ -86,7 +86,7 @@ def listing_detail(request, listing_id):
     comments = listing.comments.order_by("-timestamp")
 
     # 3. Determine current price
-    highest_bid = bids.first()
+    highest_bid = listing.bids.order_by("-bid_amount").first()
     if highest_bid:
         current_price = highest_bid.bid_amount
     else:
@@ -198,6 +198,16 @@ def listing_detail(request, listing_id):
                 reverse("listing_detail", args=[listing.id])
             )
         
+    if "close_auction" in request.POST:
+        if request.user == listing.owner:
+
+            highest_bid = listing.bids.order_by("-bid_amount").first()
+
+            if highest_bid:
+                listing.winner = highest_bid.bidder
+
+            listing.is_active = False
+            listing.save()
     # 6. Render page
     return render(request, "auctions/listing_detail.html", {
         "listing": listing,

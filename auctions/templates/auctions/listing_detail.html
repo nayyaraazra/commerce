@@ -35,13 +35,25 @@
   <p>No bids yet.</p>
 {% endfor %}
 
-<p>Created: {{ listing.date_posted|date:"M d, Y" }}</p>
+{% if not listing.is_active %}
+    {% if listing.winner %}
+        <h3>Winner: {{ listing.winner.username }}</h3>
+    {% else %}
+        <h3>Auction closed with no bids.</h3>
+    {% endif %}
+{% endif %}
+
+{% if not listing.is_active and listing.winner == request.user %}
+    <p>You won this auction!</p>
+{% endif %}
+
+<h4><p>Bid Created At: {{ listing.date_posted|date:"M d, Y" }}</p></h4>
 
 {% if listing.category %}
   <p>Category: {{ listing.category.name }}</p>
 {% endif %}
 
-<p>Status: {{ listing.is_active|yesno:"Active,Closed" }}</p>
+<h4><p><strong>Status: {{ listing.is_active|yesno:"Active,Closed" }}</p></strong></h4>
 
 {% if user.is_authenticated and user != listing.owner %}
   <form action="{% url 'toggle_watchlist' listing.id %}" method="post">
