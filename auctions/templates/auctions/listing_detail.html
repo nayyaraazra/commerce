@@ -73,15 +73,18 @@
   <form method="post">
     {% csrf_token %}
     <textarea name="comment" required></textarea>
-    <button type="submit" name="action" value="comment">Add Comment</button>
+    <button type="submit" name="action" value="comment">Add Comment</button><br>
+    <br>
   </form>
 {% endif %}
 
 {% if user == listing.owner and listing.is_active %}
   <a href="{% url 'edit_listing' listing.id %}">
-    Edit Listing
+    <button>Edit Listing</button><br>
+    <br>
   </a>
 {% endif %}
+
 
 {% if user == listing.owner and listing.is_active %}
   <form method="post">
