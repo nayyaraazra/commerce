@@ -22,7 +22,7 @@
 {% endif %}
 
 {% if highest_bid %}
-  <p>Current Highest Bid: ${{ highest_bid.amount }}</p>
+  <p>Current Highest Bid: ${{ highest_bid.bid_amount }}</p>
 {% else %}
   <p>No bids yet. Starting bid: ${{ listing.starting_bid }}</p>
 {% endif %}
@@ -30,7 +30,7 @@
 <h3>Bid History</h3>
 
 {% for bid in listing.bids.all %}
-  <p>{{ bid.bidder.username }} — ${{ bid.bid.amount }}</p>
+  <p>{{ bid.bidder.username }} — ${{ bid.bid_amount }}</p>
 {% empty %}
   <p>No bids yet.</p>
 {% endfor %}
