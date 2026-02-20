@@ -45,6 +45,6 @@ The application fulfills the following core requirements:
 ---
 
 ## Submission Screencast (SOON)
-[cite_start]A video demonstration of this project's functionality (not exceeding 5 minutes) is required for submission[cite: 150]. [cite_start]The video demonstrates all seven elements of the specification with corresponding timestamps in the description[cite: 151, 154].
+<!-- >[cite_start]A video demonstration of this project's functionality (not exceeding 5 minutes) is required for submission[cite: 150]. [cite_start]The video demonstrates all seven elements of the specification with corresponding timestamps in the description[cite: 151, 154].
 
 <!-- > [cite_start]**Note**: This project was developed as part of CS50's Web Programming with Python and JavaScript[cite: 2]. -->
